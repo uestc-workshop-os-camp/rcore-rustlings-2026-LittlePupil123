@@ -31,27 +31,44 @@ enum ParsePersonError {
     ParseInt(ParseIntError),
 }
 
-// I AM NOT DONE
 
-// Steps:
-// 1. If the length of the provided string is 0, an error should be returned
-// 2. Split the given string on the commas present in it
-// 3. Only 2 elements should be returned from the split, otherwise return an
-//    error
-// 4. Extract the first element from the split operation and use it as the name
-// 5. Extract the other element from the split operation and parse it into a
-//    `usize` as the age with something like `"4".parse::<usize>()`
-// 6. If while extracting the name and the age something goes wrong, an error
-//    should be returned
-// If everything goes well, then return a Result of a Person object
+
+// 步骤：
+// 1. 如果提供的字符串长度为 0，则应返回一个错误
+// 2. 按字符串中出现的逗号进行分割
+// 3. 分割结果只应返回 2 个元素，否则返回一个
+// 错误
+// 4. 从分割操作中取出第一个元素，并将其用作 name
+// 5. 从分割操作中取出另一个元素，并使用类似 "4".parse::<usize>() 的方式
+// 将其解析为 usize 作为 age
+// 6. 如果在提取 name 和 age 时出现问题，则应返回一个
+// 错误
+// 如果一切顺利，则返回一个包含 Person 对象的 Result
 //
-// As an aside: `Box<dyn Error>` implements `From<&'_ str>`. This means that if
-// you want to return a string error message, you can do so via just using
-// return `Err("my error message".into())`.
+// 附带说明：Box<dyn Error> 实现了 From<&'_ str>。这意味着，如果你
+// 想返回一个字符串错误消息，可以直接使用
+// Err("my error message".into()) 来实现。
 
 impl FromStr for Person {
     type Err = ParsePersonError;
     fn from_str(s: &str) -> Result<Person, Self::Err> {
+        if s.is_empty() {return Err(Self::Err::Empty)};
+        
+        let mut s_iter = s.split(',');
+        let len = s_iter.clone().count();
+
+        if len != 2 {return Err(Self::Err::BadLen)};
+
+        if let Some(name) = s_iter.next() {
+            if name.is_empty() {return Err(Self::Err::NoName)};
+            if let Some(age) = s_iter.next() {
+                match age.parse::<usize>(){
+                    Ok(age) => return Ok(Person{name:name.to_string(),age}),
+                    Err(reason) => return Err(Self::Err::ParseInt(reason)),
+                }
+            }
+        }
+        Err(Self::Err::BadLen)
     }
 }
 

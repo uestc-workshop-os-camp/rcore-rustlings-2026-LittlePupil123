@@ -1,8 +1,8 @@
 // from_into.rs
 //
-// The From trait is used for value-to-value conversions. If From is implemented
-// correctly for a type, the Into trait should work conversely. You can read
-// more about it at https://doc.rust-lang.org/std/convert/trait.From.html
+// From trait 用于值到值的转换。如果为某个类型正确实现了 From，
+// 那么 Into trait 应该能反向工作。你可以在
+// https://doc.rust-lang.org/std/convert/trait.From.html 阅读更多关于它的内容
 //
 // Execute `rustlings hint from_into` or use the `hint` watch subcommand for a
 // hint.
@@ -24,26 +24,47 @@ impl Default for Person {
     }
 }
 
-// Your task is to complete this implementation in order for the line `let p =
-// Person::from("Mark,20")` to compile Please note that you'll need to parse the
-// age component into a `usize` with something like `"4".parse::<usize>()`. The
-// outcome of this needs to be handled appropriately.
+// 你的任务是完成这个实现，以便让 let p = // Person::from("Mark,20") 这一行能够编译。请注意，你需要将
+// age 部分解析为 usize，可以使用类似 "4".parse::<usize>() 的方式。这个
+// 解析结果需要被妥善处理。
 //
-// Steps:
-// 1. If the length of the provided string is 0, then return the default of
-//    Person.
-// 2. Split the given string on the commas present in it.
-// 3. Extract the first element from the split operation and use it as the name.
-// 4. If the name is empty, then return the default of Person.
-// 5. Extract the other element from the split operation and parse it into a
-//    `usize` as the age.
-// If while parsing the age, something goes wrong, then return the default of
-// Person Otherwise, then return an instantiated Person object with the results
+// 步骤：
+// 1. 如果提供的字符串长度为 0，则返回 Person 的默认值。
+// 2. 按字符串中出现的逗号进行分割。
+// 3. 从分割结果中取出第一个元素，并将其用作 name。
+// 4. 如果 name 为空，则返回 Person 的默认值。
+// 5. 从分割结果中取出另一个元素，并将其解析为
+// usize 作为 age。
+// 如果在解析 age 时出现问题，则返回 Person 的默认值。
+// 否则，返回一个用这些结果实例化的 Person 对象。
 
-// I AM NOT DONE
+
 
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        let mut s_iter = s.split(',');
+        let len = s_iter.clone().count();
+        if len==0{
+            Person::default()
+        }else if len==2{
+            if let (name,age) = (s_iter.next(),s_iter.next()){
+                match name {
+                    Some(name) => {
+                        if name.is_empty() {
+                            return Person::default();
+                        }
+                        if let Some(age) = age{
+                            match age.parse::<usize>() {
+                                Ok(age) => return Person{name:name.to_string(),age},
+                                Err(_) => return Person::default(),
+                            }
+                        }else{Person::default()}
+                    },
+                    None => Person::default(),
+                }
+            }else{Person::default()}
+
+        }else{Person::default()}
     }
 }
 
