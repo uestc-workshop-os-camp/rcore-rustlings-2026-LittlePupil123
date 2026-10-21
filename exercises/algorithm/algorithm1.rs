@@ -2,12 +2,13 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
 
+//--------------------declare the node-------------------------
 #[derive(Debug)]
 struct Node<T> {
     val: T,
@@ -22,6 +23,7 @@ impl<T> Node<T> {
         }
     }
 }
+//-------------------declare the list--------------------------
 #[derive(Debug)]
 struct LinkedList<T> {
     length: u32,
@@ -29,13 +31,14 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd+Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+//-------------------related methods for the list--------------------------
+impl<T: std::cmp::PartialOrd+Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -44,7 +47,7 @@ impl<T> LinkedList<T> {
         }
     }
 
-    pub fn add(&mut self, obj: T) {
+    pub fn add(&mut self, obj: T) { //add new node to the end of the list
         let mut node = Box::new(Node::new(obj));
         node.next = None;
         let node_ptr = Some(unsafe { NonNull::new_unchecked(Box::into_raw(node)) });
@@ -56,27 +59,51 @@ impl<T> LinkedList<T> {
         self.length += 1;
     }
 
-    pub fn get(&mut self, index: i32) -> Option<&T> {
+    pub fn get(&mut self, index: i32) -> Option<&T> { //get the value of the node with the given index, return None if the index is out of range
         self.get_ith_node(self.start, index)
     }
 
-    fn get_ith_node(&mut self, node: Option<NonNull<Node<T>>>, index: i32) -> Option<&T> {
+    fn get_ith_node(&mut self, node: Option<NonNull<Node<T>>>, index: i32) -> Option<&T> { //get the value of the node with the given index, return None if the index is out of range
         match node {
             None => None,
             Some(next_ptr) => match index {
                 0 => Some(unsafe { &(*next_ptr.as_ptr()).val }),
-                _ => self.get_ith_node(unsafe { (*next_ptr.as_ptr()).next }, index - 1),
+                _ => self.get_ith_node(unsafe { (*next_ptr.as_ptr()).next }, index - 1),//recursion until the index is 0, then return the value of the node
             },
         }
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+		let mut res = Self::new();
+        let mut a_ptr = list_a.start;
+        let mut b_ptr = list_b.start;
+        while a_ptr.is_some() || b_ptr.is_some() {
+            if let (Some(A),Some(B)) = (& a_ptr,& b_ptr){
+                let a = unsafe { A.as_ref() };
+                let b = unsafe { B.as_ref() };
+                if (*a).val <= (*b).val{
+                    res.add((*a).val.clone());
+                    a_ptr = (*a).next;
+                }else{
+                    res.add((*b).val.clone());
+                    b_ptr = (*b).next;
+                }
+            }else{//when one of the list is empty,fill the res with the other list
+                if let Some(A) = a_ptr{
+                    let a = unsafe { A.as_ref() };
+                    res.add((*a).val.clone());
+                    a_ptr = (*a).next;
+                }
+                if let Some(B) = b_ptr{
+                    let b = unsafe { B.as_ref() };
+
+                    res.add((*b).val.clone());
+                    b_ptr = (*b).next;
+                }
+            }
         }
+        res
 	}
 }
 
