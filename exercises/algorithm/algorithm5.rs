@@ -3,16 +3,16 @@
 	This problem requires you to implement a basic BFS algorithm
 */
 
-//I AM NOT DONE
+
 use std::collections::VecDeque;
 
 // Define a graph
 struct Graph {
-    adj: Vec<Vec<usize>>, 
+    adj: Vec<Vec<usize>>, //邻接表
 }
 
 impl Graph {
-    // Create a new graph with n vertices
+    // 创建有n个点的图
     fn new(n: usize) -> Self {
         Graph {
             adj: vec![vec![]; n],
@@ -20,7 +20,7 @@ impl Graph {
     }
 
     // Add an edge to the graph
-    fn add_edge(&mut self, src: usize, dest: usize) {
+    fn add_edge(&mut self, src: usize, dest: usize) { //链接点src和dest，无向图
         self.adj[src].push(dest); 
         self.adj[dest].push(src); 
     }
@@ -29,13 +29,30 @@ impl Graph {
     fn bfs_with_return(&self, start: usize) -> Vec<usize> {
         
 		//TODO
-        
         let mut visit_order = vec![];
+        let mut mark = vec![false;self.adj.len()]; //标记数组，记录节点是否被访问过
+        let mut queue=VecDeque::new();
+        queue.push_back(start);
+        mark[start]=true;
+        visit_order.push(start);
+        //---------------------------------------------
+        while !queue.is_empty(){
+            if let Some(Current_v) = queue.pop_front(){
+                for child in &self.adj[Current_v]{
+                    if !mark[*child] {
+                        visit_order.push(*child);
+                        queue.push_back(*child);
+                        mark[*child]=true;
+                    }
+                }
+            }
+        }
+
         visit_order
     }
 }
 
-
+//-------------------------------------------------------------------------
 #[cfg(test)]
 mod tests {
     use super::*;

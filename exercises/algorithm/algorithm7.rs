@@ -1,9 +1,9 @@
 /*
-	stack
-	This question requires you to use a stack to achieve a bracket match
+	栈
+这个问题要求你使用栈来实现括号匹配。
 */
 
-// I AM NOT DONE
+
 #[derive(Debug)]
 struct Stack<T> {
 	size: usize,
@@ -32,7 +32,9 @@ impl<T> Stack<T> {
 	}
 	fn pop(&mut self) -> Option<T> {
 		// TODO
-		None
+		if 0 == self.size {return None}
+		self.size -= 1;
+		self.data.pop()
 	}
 	fn peek(&self) -> Option<&T> {
 		if 0 == self.size {
@@ -68,19 +70,19 @@ impl<T> Stack<T> {
 		iterator
 	}
 }
-struct IntoIter<T>(Stack<T>);
+
+struct IntoIter<T>(Stack<T>); //IntoIter变为一个迭代器
 impl<T: Clone> Iterator for IntoIter<T> {
 	type Item = T;
 	fn next(&mut self) -> Option<Self::Item> {
 		if !self.0.is_empty() {
-			self.0.size -= 1;self.0.data.pop()
+			self.0.size -= 1;
+			return self.0.data.pop()
 		} 
-		else {
-			None
-		}
+		return None
 	}
 }
-struct Iter<'a, T: 'a> {
+struct Iter<'a, T: 'a> { 
 	stack: Vec<&'a T>,
 }
 impl<'a, T> Iterator for Iter<'a, T> {
@@ -102,7 +104,31 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 fn bracket_match(bracket: &str) -> bool
 {
 	//TODO
-	true
+	//规则：加入左括号进入栈内，扫描到右括号，如果和栈顶匹配那么弹出栈顶，不匹配就返回false。
+	//如果栈弹空了（while循环结束）那么返回true
+	let mut stack = Stack::new();
+	
+	for i in bracket.chars() {
+		if i=='(' || i=='[' || i=='{' {
+			stack.push(i);
+			
+			continue;
+		}
+		if i==')' || i==']' || i=='}'{
+			match stack.pop(){
+				None => return false,
+				Some(top) => {
+					if (top=='(' && i==')')||(top=='[' && i==']')||(top=='{' && i=='}') {
+						continue;
+					}else{return false}
+				}
+			}
+		}
+	}
+	if !stack.is_empty(){return false}
+	return true
+	
+	
 }
 
 #[cfg(test)]
